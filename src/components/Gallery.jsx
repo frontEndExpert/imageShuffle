@@ -1,15 +1,13 @@
 import React,{useState, useEffect} from 'react';
 
 
-
-
 const Gallery = () => {
     const [picList, setPicList] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [picsPages, setPicsPages] = useState(null);
     const [indexList, setIndexList] = useState([]);
     const [desVisibility,setDesVisibility] = useState('hidden')
-    //var desVisibility = 'hidden';
+
 
     const apiUrl = 'http://j0.wlmediahub.com/App_themes/api/test/new/phtos.js'
     useEffect(() => {
@@ -30,6 +28,31 @@ const Gallery = () => {
 
 
 
+      useEffect(() => { 
+        if( !picList || picList.length === 0){
+          fetch(apiUrl)
+          .then((response) => {
+          return response.json()
+          })
+          .then((data) => {
+              setPicList(data.photo)
+          })
+          .catch((err) => {
+              console.log("Error fetching", err)
+          })
+          
+          
+        }
+      }, [picList])
+
+
+      useEffect(() => {
+        if(!picsPages || picsPages.length === 0){
+            peakPhoto();
+        }
+      },[picList])
+
+
     function getRandomNumber(min, max) {
         return Math.floor(Math.random() * (max - min) + min);
     }
@@ -37,6 +60,7 @@ const Gallery = () => {
     const peakPhoto = () => {
         var newPicsPages=[]
         let newPicIndex = 0
+        let tempIndexList = [...indexList]
         if(picList.length> 5){
             for (let i = 0; i < 5; ){
                 let loadNewPhotos = true;
@@ -44,20 +68,15 @@ const Gallery = () => {
                     newPicIndex =  getRandomNumber(0, picList.length)
                     if(picList[newPicIndex].title.length > 0 && 
                             picList[newPicIndex].description.length >0 && 
-                                !indexList.includes(newPicIndex)) {
-                                        if(indexList.length < 15){ 
-                                                let temp = [...indexList]
-                                                temp.push(newPicIndex)
-                                                setIndexList(temp)
+                                !tempIndexList.includes(newPicIndex)) {
+                                        if(tempIndexList.length < 10){ 
+                                                tempIndexList.push(newPicIndex)
                                         } else {
-                                            let temp = [...indexList]
-                                            temp.reverse().pop()
-                                            console.log("indexList1 temp",temp)
-                                            temp.push(newPicIndex)
-                                            setIndexList(temp)
-                                            console.log("indexList2",indexList)
+                                            tempIndexList.reverse().pop()
+                                            tempIndexList.reverse().push(newPicIndex)
+                                            //console.log("indexList2",indexList)
                                         }
-                                        console.log("indexList0 indexList",indexList)
+                                        
                                         newPicsPages.push(picList[newPicIndex])
                                         i++
                                         loadNewPhotos = false
@@ -67,8 +86,12 @@ const Gallery = () => {
                 }
             }
         }
+        
+        console.log("indexList0 tempIndexList",tempIndexList)
+        setIndexList(tempIndexList)
         setPicsPages(newPicsPages)
         setCurrentIndex(0)
+        console.log("indexList1 indexList",indexList)
     }
 
 
@@ -82,29 +105,7 @@ const Gallery = () => {
     }
     
 
-      useEffect(() => { 
-          if( !picList || picList.length === 0){
-            fetch(apiUrl)
-            .then((response) => {
-            return response.json()
-            })
-            .then((data) => {
-               // console.log("if picList Empty data",data);
-                setPicList(data.photo)
-            })
-            .catch((err) => {
-                console.log("Error fetching", err)
-            })
-            if(!picsPages){
-                peakPhoto();
-            }
-            
-          }
-        }, [picList, picsPages])
-
-
     return <>
-
       {picsPages && picsPages.length > 0 && 
         <div className="picture"  key={picsPages[currentIndex].id}>
             <div className="imgContainer"  >
@@ -187,7 +188,6 @@ const Gallery = () => {
                 margin: 0 10px;
                 cursor: pointer;
             }
-
 
         `}
         </style>
