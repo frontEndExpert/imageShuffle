@@ -74,7 +74,6 @@ const Gallery = () => {
                                         } else {
                                             tempIndexList.reverse().pop()
                                             tempIndexList.reverse().push(newPicIndex)
-                                            //console.log("indexList2",indexList)
                                         }
                                         
                                         newPicsPages.push(picList[newPicIndex])
@@ -87,11 +86,9 @@ const Gallery = () => {
             }
         }
         
-        console.log("indexList0 tempIndexList",tempIndexList)
         setIndexList(tempIndexList)
         setPicsPages(newPicsPages)
         setCurrentIndex(0)
-        console.log("indexList1 indexList",indexList)
     }
 
 
